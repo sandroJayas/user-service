@@ -20,11 +20,11 @@ task test
 ```
 
 ### Run migrations
-Migration files live in /migrations
+Migration files live in /migrations/sql
 
-To manually apply them use:
+To apply them and regenerate the schema use:
 ```
-task migrate
+task regenerate-schema
 ```
 
 ### Run swagger
