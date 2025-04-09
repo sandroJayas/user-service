@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:15
+    container_name: user-service-db
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: user_service
+    ports:
+      - "5432:5432"
+    volumes:
+      - user_data:/var/lib/postgresql/data
+    networks:
+      - user-net
+
+  flyway:
+    image: flyway/flyway:11.6.0
+    container_name: user-service-flyway
+    depends_on:
+      - db
+    volumes:
+      - ./migrations:/flyway/sql
+    command: >
+      -url=jdbc:postgresql://db:5432/user_service
+      -user=username
+      -password=password
+      -locations=filesystem:/flyway/sql
+      migrate
+    networks:
+      - user-net
+
+volumes:
+  user_data:
+
+networks:
+  user-net:
