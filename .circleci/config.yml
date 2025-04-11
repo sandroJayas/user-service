@@ -130,7 +130,5 @@ jobs:
 workflows:
   user-service-pipeline:
     jobs:
-      - integration-test:
-          environment:
-            APP_ENV: testing
+      - integration-test
       - build
