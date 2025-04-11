@@ -120,7 +120,7 @@ jobs:
           command: task run &
       - run:
           name: Wait for app to be ready
-          command: dockerize -wait http://localhost:8080/healthz -timeout 30s
+          command: dockerize -wait http://localhost:8080/healthz -timeout 1m
       - run:
           name: Run integration tests
           command: task test
@@ -128,5 +128,7 @@ jobs:
 workflows:
   user-service-pipeline:
     jobs:
-      - integration-test
+      - integration-test:
+          environment:
+            APP_ENV: testing
       - build

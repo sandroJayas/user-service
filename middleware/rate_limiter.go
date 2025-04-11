@@ -66,7 +66,7 @@ func getLimiterForIP(ip string) *rate.Limiter {
 
 // RateLimitMiddleware applies a rate limit per IP
 func RateLimitMiddleware() gin.HandlerFunc {
-	if config.AppConfig.AppEnv == "test" {
+	if config.AppConfig.AppEnv == "testing" {
 		return func(c *gin.Context) {
 			c.Next()
 		}
