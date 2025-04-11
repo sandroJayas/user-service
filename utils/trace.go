@@ -16,6 +16,10 @@ import (
 var Tracer trace.Tracer
 
 func InitTracer() func(context.Context) error {
+	if os.Getenv("APP_ENV") == "testing" {
+		log.Println("Tracing is disabled in staging CI/CD")
+		return func(ctx context.Context) error { return nil }
+	}
 	ctx := context.Background()
 
 	exporter, err := otlptracehttp.New(ctx)
