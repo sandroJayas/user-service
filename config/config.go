@@ -2,6 +2,8 @@ package config
 
 import (
 	"github.com/sandroJayas/user-service/utils"
+	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
+	"go.uber.org/zap"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -20,6 +22,9 @@ func ConnectDB() *gorm.DB {
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err == nil {
 			utils.Logger.Sugar().Infof("🚀 Connected to database")
+			if err = db.Use(otelgorm.NewPlugin()); err != nil {
+				utils.Logger.Fatal("failed to init gorm tracing", zap.Error(err))
+			}
 			return db
 		}
 

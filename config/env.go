@@ -9,9 +9,12 @@ import (
 )
 
 type EnvConfig struct {
-	DatabaseURL string `env:"DATABASE_URL,required"`
-	JWTSecret   string `env:"JWT_SECRET,required"`
-	AppEnv      string `env:"APP_ENV" envDefault:"test"`
+	DatabaseURL          string `env:"DATABASE_URL,required"`
+	JWTSecret            string `env:"JWT_SECRET,required"`
+	AppEnv               string `env:"APP_ENV" envDefault:"test"`
+	HoneycombServiceName string `env:"HONEYCOMB_SERVICE_NAME,required"`
+	HoneycombEndpoint    string `env:"OTEL_EXPORTER_OTLP_ENDPOINT,required"`
+	HoneycombHeaders     string `env:"OTEL_EXPORTER_OTLP_HEADERS,required"`
 }
 
 var AppConfig *EnvConfig

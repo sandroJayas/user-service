@@ -9,6 +9,7 @@ import (
 	"github.com/sandroJayas/user-service/routes"
 	"github.com/sandroJayas/user-service/usecase"
 	"github.com/sandroJayas/user-service/utils"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.uber.org/zap"
 	"net/http"
 	"os"
@@ -30,8 +31,12 @@ func main() {
 	userService := usecase.NewUserService(userRepo)
 	userController := controllers.NewUserController(userService)
 
+	shutdown := utils.InitTracer()
+	defer shutdown(context.Background())
+
 	r := gin.Default()
 	routes.RegisterUserRoutes(r, userController, db)
+	r.Use(otelgin.Middleware("user-service"))
 
 	//graceful shutdown
 	srv := &http.Server{
