@@ -21,11 +21,6 @@ tasks:
     cmds:
       - docker compose logs -f db
 
-  migrate:
-    desc: Run Flyway migrations
-    cmds:
-      - docker compose run --rm flyway
-
   run:
     desc: Run Go app locally (outside Docker)
     cmds:
@@ -40,3 +35,9 @@ tasks:
     desc: Run Go app locally (outside Docker)
     cmds:
       - swag init --generalInfo cmd/main.go
+
+  regenerate-schema:
+    desc: Generate flattened schema.sql
+    cmds:
+      - docker compose run --rm flyway
+      - pg_dump --schema-only --no-owner --no-privileges --dbname=postgres://username:password@localhost:5432/user_service > migrations/schema.sql
