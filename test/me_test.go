@@ -52,9 +52,13 @@ func TestProtectedRouteAccess(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-		var body map[string]string
+		var body struct {
+			User struct {
+				ID string `json:"id"`
+			} `json:"user"`
+		}
 		_ = json.NewDecoder(resp.Body).Decode(&body)
-		assert.Contains(t, body["user_id"], "-", "should return a UUID user_id")
+		assert.Contains(t, body.User.ID, "-", "should return a UUID user_id")
 	})
 
 	t.Run("missing token", func(t *testing.T) {
