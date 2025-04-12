@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"github.com/google/uuid"
 	"github.com/sandroJayas/user-service/domain/repository"
 	"github.com/sandroJayas/user-service/models"
 	"golang.org/x/crypto/bcrypt"
@@ -34,7 +35,7 @@ func (s *UserService) Login(email, password string) (*models.User, error) {
 	return user, nil
 }
 
-func (s *UserService) GetUserByID(id string) (*models.User, error) {
+func (s *UserService) GetUserByID(id uuid.UUID) (*models.User, error) {
 	var user models.User
 	if err := s.repo.FindByID(id, &user); err != nil {
 		return nil, err
@@ -42,7 +43,7 @@ func (s *UserService) GetUserByID(id string) (*models.User, error) {
 	return &user, nil
 }
 
-func (s *UserService) UpdateUser(id string, data *models.User) (*models.User, error) {
+func (s *UserService) UpdateUser(id uuid.UUID, data *models.User) (*models.User, error) {
 	var user models.User
 	if err := s.repo.FindByID(id, &user); err != nil {
 		return nil, err
@@ -64,6 +65,6 @@ func (s *UserService) UpdateUser(id string, data *models.User) (*models.User, er
 	return &user, nil
 }
 
-func (s *UserService) DeleteUser(id string) error {
+func (s *UserService) DeleteUser(id uuid.UUID) error {
 	return s.repo.SoftDelete(id)
 }

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/google/uuid"
 	"github.com/sandroJayas/user-service/models"
 	"gorm.io/gorm"
 )
@@ -23,7 +24,7 @@ func (r *GormUserRepository) FindByEmail(email string) (*models.User, error) {
 	return &user, err
 }
 
-func (r *GormUserRepository) FindByID(id string, user *models.User) error {
+func (r *GormUserRepository) FindByID(id uuid.UUID, user *models.User) error {
 	return r.db.First(user, "id = ? AND is_deleted = false", id).Error
 }
 
@@ -31,6 +32,6 @@ func (r *GormUserRepository) Save(user *models.User) error {
 	return r.db.Save(user).Error
 }
 
-func (r *GormUserRepository) SoftDelete(id string) error {
+func (r *GormUserRepository) SoftDelete(id uuid.UUID) error {
 	return r.db.Model(&models.User{}).Where("id = ?", id).Update("is_deleted", true).Error
 }
