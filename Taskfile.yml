@@ -40,4 +40,8 @@ tasks:
     desc: Generate flattened schema.sql
     cmds:
       - docker compose run --rm flyway
-      - pg_dump --schema-only --no-owner --no-privileges --dbname=postgres://username:password@localhost:5432/user_service > migrations/schema.sql
+      - |
+        pg_dump --schema-only --no-owner --no-privileges \
+        --dbname=postgresql://localhost:5432/user_service?user=user_service \
+        | sed '/^-- Dumped by pg_dump/d' \
+        > migrations/schema.sql
