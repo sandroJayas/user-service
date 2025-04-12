@@ -126,9 +126,42 @@ jobs:
       - run:
           name: Run integration tests
           command: task test
+  docker-build-push:
+    docker:
+      - image: cimg/base:stable
+    working_directory: ~/user-service
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Log in to Docker Hub
+          command: |
+            echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USER" --password-stdin
+      - run:
+          name: Build and tag Docker image
+          command: |
+            IMAGE_NAME=$DOCKERHUB_USER/user-service
+            TAG=$(git rev-parse --short HEAD)
+            docker build -t $IMAGE_NAME:$TAG -t $IMAGE_NAME:latest .
+      - run:
+          name: Push Docker image to Docker Hub
+          command: |
+            IMAGE_NAME=$DOCKERHUB_USER/user-service
+            TAG=$(git rev-parse --short HEAD)
+            docker push $IMAGE_NAME:$TAG
+            docker push $IMAGE_NAME:latest
 
 workflows:
   user-service-pipeline:
     jobs:
       - integration-test
       - build
+      - docker-build-push:
+          context:
+            - dockerhub
+          requires:
+            - build
+            - integration-test
+          filters:
+            branches:
+              only: main
