@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/sandroJayas/user-service/dto"
 	"github.com/sandroJayas/user-service/models"
 	"github.com/sandroJayas/user-service/usecase"
@@ -99,15 +100,15 @@ func (ctrl *UserController) Login(c *gin.Context) {
 // @Failure 500 {object} map[string]string "Server error"
 // @Router /users/me [get]
 func (ctrl *UserController) Me(c *gin.Context) {
-	userID, exists := c.Get("user_id")
+	userIDRaw, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
-
-	user, err := ctrl.service.GetUserByID(userID.(string))
+	userID := userIDRaw.(uuid.UUID)
+	user, err := ctrl.service.GetUserByID(userID)
 	if err != nil {
-		utils.Logger.Error("get user failed", zap.String("user_id", userID.(string)), zap.Error(err))
+		utils.Logger.Error("get user failed", zap.String("user_id", userID.String()), zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not fetch user"})
 		return
 	}
@@ -129,10 +130,15 @@ func (ctrl *UserController) Me(c *gin.Context) {
 // @Failure 500 {object} map[string]string "Server error"
 // @Router /users/profile [put]
 func (ctrl *UserController) UpdateProfile(c *gin.Context) {
-	userID, _ := c.Get("user_id")
+	userIDRaw, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	userID := userIDRaw.(uuid.UUID)
 	var updateRequest dto.UpdateProfileRequest
 	if err := c.ShouldBindJSON(&updateRequest); err != nil {
-		utils.Logger.Warn("invalid user update input", zap.String("user_id", userID.(string)), zap.Error(err))
+		utils.Logger.Warn("invalid user update input", zap.String("user_id", userID.String()), zap.Error(err))
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -147,9 +153,9 @@ func (ctrl *UserController) UpdateProfile(c *gin.Context) {
 		PhoneNumber:     updateRequest.PhoneNumber,
 		PaymentMethodID: updateRequest.PaymentMethodID,
 	}
-	updatedUser, err := ctrl.service.UpdateUser(userID.(string), &user)
+	updatedUser, err := ctrl.service.UpdateUser(userID, &user)
 	if err != nil {
-		utils.Logger.Error("profile update failed", zap.String("user_id", userID.(string)), zap.Error(err))
+		utils.Logger.Error("profile update failed", zap.String("user_id", userID.String()), zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update user"})
 		return
 	}
@@ -168,10 +174,15 @@ func (ctrl *UserController) UpdateProfile(c *gin.Context) {
 // @Failure 500 {object} map[string]string "Server error"
 // @Router /users/delete [delete]
 func (ctrl *UserController) DeleteUser(c *gin.Context) {
-	userID, _ := c.Get("user_id")
+	userIDRaw, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	userID := userIDRaw.(uuid.UUID)
 
-	if err := ctrl.service.DeleteUser(userID.(string)); err != nil {
-		utils.Logger.Error("user delete failed", zap.String("user_id", userID.(string)), zap.Error(err))
+	if err := ctrl.service.DeleteUser(userID); err != nil {
+		utils.Logger.Error("user delete failed", zap.String("user_id", userID.String()), zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete user"})
 		return
 	}
