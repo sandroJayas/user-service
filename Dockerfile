@@ -23,7 +23,6 @@ WORKDIR /root/
 
 # Copy binary only and migrations file — small image
 COPY --from=builder /app/user-service .
-COPY --from=builder /app/migrations /app/migrations
 
 # Expose the app port
 EXPOSE 8080
