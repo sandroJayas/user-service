@@ -6,10 +6,16 @@ import (
 	"time"
 )
 
+const (
+	AccountTypeCustomer = "customer"
+	AccountTypeEmployee = "employee"
+)
+
 type User struct {
-	ID       uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	Email    string    `json:"email" gorm:"not null"`
-	Password string    `json:"password"`
+	ID          uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	Email       string    `json:"email" gorm:"not null"`
+	Password    string    `json:"password"`
+	AccountType string    `json:"account_type" gorm:"not null;default:'customer'"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

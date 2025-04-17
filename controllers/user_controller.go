@@ -39,8 +39,9 @@ func (ctrl *UserController) Register(c *gin.Context) {
 	}
 
 	user := models.User{
-		Email:    registerRequest.Email,
-		Password: registerRequest.Password,
+		Email:       registerRequest.Email,
+		Password:    registerRequest.Password,
+		AccountType: models.AccountTypeCustomer,
 	}
 	if err := ctrl.service.Register(&user); err != nil {
 		utils.Logger.Error("user registration failed", zap.String("email", registerRequest.Email), zap.Error(err))
@@ -78,7 +79,7 @@ func (ctrl *UserController) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := utils.GenerateToken(user.ID)
+	token, err := utils.GenerateToken(user.ID, user.AccountType)
 	if err != nil {
 		utils.Logger.Error("token generation failed", zap.String("user_id", user.ID.String()), zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
@@ -114,6 +115,65 @@ func (ctrl *UserController) Me(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"user": user})
+}
+
+// SpecialEmployeeEndpoint godoc
+// @Summary Special command for Sort employees
+// @Description This route is only accessible by Sort employees (account_type=employee)
+// @Tags users
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} map[string]string "Success message"
+// @Failure 403 {object} map[string]string "Forbidden"
+// @Router /users/special [post]
+func (ctrl *UserController) SpecialEmployeeEndpoint(c *gin.Context) {
+	userID := c.GetString("user_id")
+	accountType := c.GetString("account_type")
+
+	utils.Logger.Info("special employee endpoint triggered",
+		zap.String("user_id", userID),
+		zap.String("account_type", accountType),
+	)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Sort employee command executed successfully",
+		"user_id": userID,
+		"role":    accountType,
+	})
+}
+
+// CreateEmployee godoc
+// @Summary Create a Sort employee account
+// @Description Allows creation of a user with employee privileges
+// @Tags admin
+// @Security BearerAuth
+// @Accept  json
+// @Produce  json
+// @Param request body dto.CreateEmployeeRequest true "Employee creation data"
+// @Success 201 {object} map[string]any "Created employee in 'user' field"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 403 {object} map[string]string "Forbidden"
+// @Failure 500 {object} map[string]string "Server error"
+// @Router /users/create-employee [post]
+func (ctrl *UserController) CreateEmployee(c *gin.Context) {
+	var req dto.CreateEmployeeRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user := models.User{
+		Email:       req.Email,
+		Password:    req.Password,
+		AccountType: "employee",
+	}
+
+	if err := ctrl.service.Register(&user); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"user": user})
 }
 
 // UpdateProfile godoc

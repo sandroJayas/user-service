@@ -71,7 +71,8 @@ CREATE TABLE public.users (
     country text NOT NULL,
     phone_number text NOT NULL,
     payment_method_id text,
-    is_deleted boolean DEFAULT false
+    is_deleted boolean DEFAULT false,
+    account_type text DEFAULT 'customer'::text NOT NULL
 );
 
 
