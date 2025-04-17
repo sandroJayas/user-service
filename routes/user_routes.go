@@ -34,5 +34,9 @@ func RegisterUserRoutes(r *gin.Engine, controller *controllers.UserController, d
 		users.GET("/me", middleware.AuthMiddleware(), controller.Me)
 		users.PUT("/profile", middleware.AuthMiddleware(), controller.UpdateProfile)
 		users.DELETE("/delete", middleware.AuthMiddleware(), controller.DeleteUser)
+
+		users.POST("/create-employee", controller.CreateEmployee)
+		users.POST("/special", middleware.AuthMiddleware(), middleware.RequireEmployeeRole(), controller.SpecialEmployeeEndpoint)
+
 	}
 }

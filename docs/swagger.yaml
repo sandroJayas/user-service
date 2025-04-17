@@ -1,4 +1,15 @@
 definitions:
+  dto.CreateEmployeeRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
   dto.LoginRequest:
     properties:
       email:
@@ -53,6 +64,49 @@ definitions:
 info:
   contact: {}
 paths:
+  /users/create-employee:
+    post:
+      consumes:
+      - application/json
+      description: Allows creation of a user with employee privileges
+      parameters:
+      - description: Employee creation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateEmployeeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created employee in 'user' field
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a Sort employee account
+      tags:
+      - admin
   /users/delete:
     delete:
       description: Marks the user as deleted (is_deleted = true)
@@ -228,4 +282,27 @@ paths:
       summary: Register a new user
       tags:
       - auth
+  /users/special:
+    post:
+      description: This route is only accessible by Sort employees (account_type=employee)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Special command for Sort employees
+      tags:
+      - users
 swagger: "2.0"
